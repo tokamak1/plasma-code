@@ -56,17 +56,20 @@ for i = 1 : length(tag)
     end
 end
 figure;
+jp = 1;
 for it = 1 : 100 : nstop / ndiag
 %     figure; 
     set(gca,'nextplot','replacechildren');
     set(gcf,'DefaultAxesFontSize',15);
     set(gcf,'Position',get(0,'ScreenSize'));
-    jp = 1;
     for i = 1 : length(tag)
         if mod(i,15) == 0
         eval(['Pphi = pdata',num2str(tag(i)),'(5, :);']);
         eval(['E = pdata',num2str(tag(i)),'(6, :);']);
         eval(['lamda = pdata',num2str(tag(i)),'(7, :);']);
+            if it == nstop / ndiag
+               eval(['time = pdata',num2str(tag(i)),'(8, :);']);
+            end
             if it >= length(E)
                 plot3(Pphi,E,lamda,'-o','linewidth',2);hold on;
 %                 pause(0.1);
@@ -77,8 +80,9 @@ for it = 1 : 100 : nstop / ndiag
             xlabel('P_\phi','fontsize',18);
             ylabel('E','fontsize',18);
             zlabel('\Lambda','fontsize',18);
-            title(['phase space motion t = ' num2str((it - 1) * ndiag)]);
+
         end
+            title(['particle phase motion t = ',num2str(time(it))]);
     end
     F(jp) = getframe(gcf);
     jp = jp + 1;
