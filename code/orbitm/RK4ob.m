@@ -1,0 +1,66 @@
+function [dvx,dvy,dvz,dx,dy,dz] = RK4ob(x0,y0,z0,v0x,v0y,v0z,fr,ft,fz,r,z,h,q,m)
+
+r0 = sqrt(x0^2 + y0^2);
+br = interp2(r,z,fr,r0,z0);
+bt = interp2(r,z,ft,r0,z0);
+bz = interp2(r,z,fz,r0,z0);
+bx = br * x0 / r0 - bt * y0 / r0;
+by = br * y0 / r0 + bt * x0 / r0;
+a0x = q * (v0y * bz - v0z * by) / m;
+a0y = q * (v0z * bx - v0x * bz) / m;
+a0z = q * (v0x * by - v0y * bx) / m;
+v1x = v0x + a0x * h / 2;
+v1y = v0y + a0y * h / 2;
+v1z = v0z + a0z * h / 2;
+x1 = x0 + v1x * h / 2;
+y1 = y0 + v1y * h / 2;
+z1 = z0 + v1z * h / 2;
+r1 = sqrt(x1^2 + y1^2);
+br = interp2(r,z,fr,r1,z1);
+bt = interp2(r,z,ft,r1,z1);
+bz = interp2(r,z,fz,r1,z1);
+bx = br * x1 / r1 - bt * y1 / r1;
+by = br * y1 / r1 + bt * x1 / r1;
+a1x = q * (v1y * bz - v1z * by) / m;
+a1y = q * (v1z * bx - v1x * bz) / m;
+a1z = q * (v1x * by - v1y * bx) / m;
+v2x = v0x + a1x * h / 2;
+v2y = v0y + a1y * h / 2;
+v2z = v0z + a1z * h / 2;
+x2 = x0 + v2x * h / 2;
+y2 = y0 + v2y * h / 2;
+z2 = z0 + v2z * h / 2;
+r2 = sqrt(x2^2 + y2^2);
+br = interp2(r,z,fr,r2,z2);
+bt = interp2(r,z,ft,r2,z2);
+bz = interp2(r,z,fz,r2,z2);
+bx = br * x2 / r2 - bt * y2 / r2;
+by = br * y2 / r2 + bt * x2 / r2;
+a2x = q * (v2y * bz - v2z * by) / m;
+a2y = q * (v2z * bx - v2x * bz) / m;
+a2z = q * (v2x * by - v2y * bx) / m;
+v3x = v0x + a2x * h;
+v3y = v0y + a2y * h;
+v3z = v0z + a2z * h;
+x3 = x0 + v3x * h;
+y3 = y0 + v3y * h;
+z3 = z0 + v3z * h;
+r3 = sqrt(x3^2 + y3^2);
+br = interp2(r,z,fr,r3,z3);
+bt = interp2(r,z,ft,r3,z3);
+bz = interp2(r,z,fz,r3,z3);
+bx = br * x3 / r3 - bt * y3 / r3;
+by = br * y3 / r3 + bt * x3 / r3;
+a3x = q * (v3y * bz - v3z * by) / m;
+a3y = q * (v3z * bx - v3x * bz) / m;
+a3z = q * (v3x * by - v3y * bx) / m;
+dvx = (a0x + 2 * a1x + 2 * a2x + a3x) * h / 6;
+dvy = (a0y + 2 * a1y + 2 * a2y + a3y) * h / 6;
+dvz = (a0z + 2 * a1z + 2 * a2z + a3z) * h / 6;
+dx = (v0x + 2 * v1x + 2 * v2x + v3x) * h / 6;
+dy = (v0y + 2 * v1y + 2 * v2y + v3y) * h / 6;
+dz = (v0z + 2 * v1z + 2 * v2z + v3z) * h / 6 ;
+
+end
+
+
