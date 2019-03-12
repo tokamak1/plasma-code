@@ -36,7 +36,6 @@ figure;
 set(gca,'nextplot','replacechildren');
 set(gcf,'DefaultAxesFontSize',15);
 set(gcf,'Position',get(0,'ScreenSize'));
-jp = 1;
 for i = 1 : length(tag)
     if mod(i,15) == 0
 %     if i == 300
@@ -46,8 +45,12 @@ for i = 1 : length(tag)
     X = R .* cos(Phi);
     Y = R .* sin(Phi);
     plot3(X,Y,Z,'linewidth',2);
+    eval(['time = pdata',num2str(tag(i)),'(8,:);']);
+    if length(R) == nstop / ndiag + 1
+        timep = time;
+    end
     xlabel('X','fontsize',18);ylabel('Y','fontsize',18);zlabel('Z','fontsize',18);
-    title(['particle ',num2str(tag(i)),' t = 0 ~ ',num2str((length(R) - 1) * ndiag)]);
+    title(['particle ',num2str(tag(i)),' t = 0 ~ ',num2str(time(end))]);
     xlim([-6, 6]);ylim([-6, 6]);zlim([-4, 4]);
     drawnow;
     pause(0.1);
@@ -67,9 +70,7 @@ for it = 1 : 100 : nstop / ndiag
         eval(['Pphi = pdata',num2str(tag(i)),'(5, :);']);
         eval(['E = pdata',num2str(tag(i)),'(6, :);']);
         eval(['lamda = pdata',num2str(tag(i)),'(7, :);']);
-            if it == nstop / ndiag
-               eval(['time = pdata',num2str(tag(i)),'(8, :);']);
-            end
+
             if it >= length(E)
                 plot3(Pphi,E,lamda,'-o','linewidth',2);hold on;
 %                 pause(0.1);
@@ -82,7 +83,7 @@ for it = 1 : 100 : nstop / ndiag
             zlabel('\Lambda','fontsize',18);
 
         end
-            title(['particle phase motion t = ',num2str(time(it))]);
+            title(['particle phase motion t = ',num2str(timep(it))]);
     end
     F(jp) = getframe(gcf);
     jp = jp + 1;
