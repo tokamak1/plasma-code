@@ -1,10 +1,10 @@
 figure;
 ng = 128;
 jp = 1;
-dr = 10 / (ng - 1);
-dz = 10 / (ng - 1);
-r0 = 0 : dp : 10;
-z0 = 0 : dl : 10;
+dr = 3 / (ng - 1);
+dz = 3 / (ng - 1);
+r0 = -1.5 : dr : 1.5;
+z0 = 2.5 : dr : 5.5;
 [r, z] = meshgrid(r0, z0);
 for it = 2 : 50 : nstop / ndiag + 1
 %     figure; 
