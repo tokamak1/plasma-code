@@ -6,20 +6,20 @@ subroutine construct_spline(nsp, xsp, ysp, bc)
     implicit none
 
     integer, intent(in) :: nsp
-    real(wp), intent(in) :: xsp(0:nsp)
-    real(wp), intent(inout) :: ysp(0:3, 0:nsp)
+    real(wp), intent(in) :: xsp(0:nsp-1)
+    real(wp), intent(inout) :: ysp(0:3, 0:nsp-1)
     character(*), intent(in) :: bc
 
     integer i, info
     integer, allocatable :: pivot(:)
-    real(wp) mu, h(nsp), m(0:nsp)
+    real(wp) mu, h(nsp-1), m(0:nsp-1)
     real(wp), allocatable :: coef_mat(:, :), g(:)
 
     if(bc == 'natural')then
-        allocate(coef_mat(nsp-1, nsp-1), g(nsp-1), pivot(nsp-1))
+        allocate(coef_mat(nsp-2, nsp-2), g(nsp-2), pivot(nsp-2))
 
         h(1) = xsp(1) - xsp(0)
-        do i = 1, nsp-1
+        do i = 1, nsp-2
             h(i+1) = xsp(i+1) - xsp(i)
             mu = h(i)/(h(i)+h(i+1))
 
@@ -30,34 +30,34 @@ subroutine construct_spline(nsp, xsp, ysp, bc)
             g(i) = 6.0/(h(i)+h(i+1))*((ysp(0, i+1)-ysp(0, i))/h(i+1)&
                 -(ysp(0, i)-ysp(0, i-1))/h(i))
         enddo
-        call dgesv(nsp-1, 1, coef_mat, nsp-1, pivot, g, nsp-1, info)
+        call dgesv(nsp-2, 1, coef_mat, nsp-2, pivot, g, nsp-2, info)
 
         m(0) = 0.0
-        m(nsp) = 0.0
-        m(1:nsp-1) = g
+        m(nsp-1) = 0.0
+        m(1:nsp-2) = g
     elseif(bc == 'periodic')then
-        allocate(coef_mat(nsp, nsp), g(nsp), pivot(nsp))
+        allocate(coef_mat(nsp-1, nsp-1), g(nsp-1), pivot(nsp-1))
 
-        h = xsp(1:nsp) - xsp(0:nsp-1)
-        do i = 1, nsp
-            mu = h(i)/(h(i)+h(mod(i, nsp)+1))
+        h = xsp(1:nsp-1) - xsp(0:nsp-2)
+        do i = 1, nsp-1
+            mu = h(i)/(h(i)+h(mod(i, nsp-1)+1))
 
-            coef_mat(i, modulo(i-2, nsp)+1) = mu
+            coef_mat(i, modulo(i-2, nsp-1)+1) = mu
             coef_mat(i, i) = 2.0
-            coef_mat(i, mod(i, nsp)+1) = 1 - mu
+            coef_mat(i, mod(i, nsp-1)+1) = 1 - mu
 
-            g(i) = 6.0/(h(i)+h(mod(i, nsp)+1)) *&
-                ((ysp(0, mod(i, nsp)+1)-ysp(0, mod(i, nsp))/h(mod(i, nsp)+1))&
+            g(i) = 6.0/(h(i)+h(mod(i, nsp-1)+1)) *&
+                ((ysp(0, mod(i, nsp-1)+1)-ysp(0, mod(i, nsp-1))/h(mod(i, nsp-1)+1))&
                 -(ysp(0, i)-ysp(0, i-1))/h(i))
         enddo
 
-        call dgesv(nsp, 1, coef_mat, nsp, pivot, g, nsp, info)
+        call dgesv(nsp-1, 1, coef_mat, nsp-1, pivot, g, nsp-1, info)
 
-        m(0) = g(nsp)
-        m(1:nsp) = g
+        m(0) = g(nsp-1)
+        m(1:nsp-1) = g
     endif
 
-    do i = 1, nsp
+    do i = 1, nsp-1
         ysp(1, i-1) = (ysp(0, i)-ysp(0, i-1))/h(i) &
             - h(i)*(2.0*m(i-1)+m(i))/6.0
         ysp(2, i-1) = m(i-1)/2.0
@@ -73,13 +73,13 @@ subroutine cs_sg(nsp, dx, ysp, bc)
 
     integer, intent(in) :: nsp
     real(wp), intent(in) :: dx
-    real(wp), intent(inout) :: ysp(0:3, 0:nsp)
+    real(wp), intent(inout) :: ysp(0:3, 0:nsp-1)
     character(*), intent(in) :: bc
 
     integer i
-    real(wp) xsp(0:nsp)
+    real(wp) xsp(0:nsp-1)
 
-    xsp = (/(real(i, wp)*dx, i = 0, nsp)/)
+    xsp = (/(real(i, wp)*dx, i = 0, nsp-1)/)
 
     call construct_spline(nsp, xsp, ysp, bc)
 
@@ -91,14 +91,14 @@ subroutine construct_spline2d(nx, ny, xsp, ysp, zsp, xbc, ybc)
     implicit none
 
     integer, intent(in)  :: nx, ny
-    real(wp), intent(in) :: xsp(0:nx), ysp(0:ny)
-    real(wp), intent(inout) :: zsp(0:15, 0:nx, 0:ny)
+    real(wp), intent(in) :: xsp(0:nx-1), ysp(0:ny-1)
+    real(wp), intent(inout) :: zsp(0:15, 0:nx-1, 0:ny-1)
     character(*), intent(in):: xbc, ybc
 
     integer i, j
-    real(wp) tmp_x(0:3, nx), tmp_y(0:3, ny)
+    real(wp) tmp_x(0:3, 0:nx-1), tmp_y(0:3, 0:ny-1)
     !TODO: check it
-    do i = 0, ny
+    do i = 0, ny-1
         tmp_x(0, :) = zsp(0, :, i)
         call construct_spline(nx, xsp, tmp_x, xbc)
         zsp(1, :, i) = tmp_x(1, :)
@@ -106,7 +106,7 @@ subroutine construct_spline2d(nx, ny, xsp, ysp, zsp, xbc, ybc)
         zsp(3, :, i) = tmp_x(3, :)
     enddo
 
-    do i = 0, nx
+    do i = 0, nx-1
         do j = 0, 3
             tmp_y(0, :) = zsp(j, i, :)
             call construct_spline(ny, ysp, tmp_y, ybc)
@@ -123,9 +123,9 @@ function spline(x0, nsp, xsp, ysp) result(y0)
     implicit none
 
     integer i, nsp
-    real(wp) x0, y0, xsp(0:nsp), ysp(0:3, 0:nsp), dx
+    real(wp) x0, y0, xsp(0:nsp-1), ysp(0:3, 0:nsp-1), dx
 
-    do i = 0, nsp-1
+    do i = 0, nsp-2
         if(x0 >= xsp(i) .and. x0 < xsp(i+1))then
             dx = x0 - xsp(i)
             y0 = ysp(0, i) + ysp(1, i)*dx + ysp(2, i)*dx*dx +&
@@ -136,41 +136,73 @@ function spline(x0, nsp, xsp, ysp) result(y0)
 
 end function spline
 
+function dspline(x0, nsp, xsp, ysp) result(y0)
+    use precision
+    implicit none
+
+    integer i, nsp
+    real(wp) x0, y0, xsp(0:nsp-1), ysp(0:3, 0:nsp-1), dx
+
+    do i = 0, nsp-2
+        if(x0 >= xsp(i) .and. x0 < xsp(i+1))then
+            dx = x0 - xsp(i)
+            y0 = ysp(1, i) + ysp(2, i)*2.0*dx + ysp(3, i)*3.0*dx*dx
+            exit
+        endif
+    enddo
+
+end function dspline
+
 function spline2d(x0, y0, nx, ny, xsp, ysp, zsp) result(z0)
     use precision
     implicit none
 
-    integer i, j, nx, ny
-    real(wp) x0, y0, z0, dx, dy, xsp(0:nx), ysp(0:ny),&
-        zsp(0:15, 0:nx, 0:ny), ds(0:15)
+    integer i, j, k, nx, ny
+    real(wp) x0, y0, z0, dx, dy, xsp(0:nx-1), ysp(0:ny-1),&
+        zsp(0:15, 0:nx-1, 0:ny-1), ds(0:15)
     !TODO: check it
-    do i = 0, nx-1
+    do i = 0, nx-2
         if(x0 >= xsp(i) .and. x0 < xsp(i+1))dx = x0 - xsp(i)
     enddo
-    do j = 0, ny-1
+    do j = 0, ny-2
         if(y0 >= ysp(i) .and. y0 < ysp(i+1))dy = y0 - ysp(i)
     enddo
 
-    ds = (/(dx**(mod(i, 4))*dy**(i/4), i=0,15)/)
+    ds = (/(dx**(mod(k, 4))*dy**(k/4), k=0,15)/)
     z0 = dot_product(zsp(:, i, j), ds)
-
 
 end function spline2d
 
 function dsplin2d(xy, x0, y0, nx, ny, xsp, ysp, zsp) result(z0)
+    ! xy variable indicates derivative w.r.t. x(xy==1) or y(xy==2)
     use precision
     implicit none
 
-    integer i, j, nx, ny, xy
-    real(wp) x0, y0, z0, dx, dy, xsp(0:nx), ysp(0:ny),&
-        zsp(0:15, 0:nx, 0:ny), ds(0:15)
-    do i = 0, nx-1
+    integer i, j, k, nx, ny, xy
+    real(wp) x0, y0, z0, dx, dy, xsp(0:nx-1), ysp(0:ny-1),&
+        zsp(0:15, 0:nx-1, 0:ny-1), ds(0:15)
+    do i = 0, nx-2
         if(x0 >= xsp(i) .and. x0 < xsp(i+1))dx = x0 - xsp(i)
     enddo
-    do j = 0, ny-1
+    do j = 0, ny-2
         if(y0 >= ysp(i) .and. y0 < ysp(i+1))dy = y0 - ysp(i)
     enddo
 
-    !TODO: finish this!
+    if(xy == 1)then
+        ds(0:3) = (/0.0, 1.0, 2.0*dx, 3.0*dx*dx/)
+        ds(4:7) = ds(0:3)*dy
+        ds(8:11) = ds(4:7)*dy
+        ds(12:15) = ds(8:11)*dy
+    elseif(xy == 2)then
+        ds(0:3) = 0.0
+        ds(4:7) = (/(dx**k, k = 0,3)/)
+        ds(8:11) = ds(4:7)*2.0*dy
+        ds(12:15) = ds(8:11)*1.5*dy
+    else
+        STOP 'dspline2d parameter error'
+    endif
+
+    z0 = dot_product(zsp(:, i, j), ds)
+    !TODO: check it
     
 end function
