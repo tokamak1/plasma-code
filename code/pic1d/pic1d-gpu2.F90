@@ -102,11 +102,7 @@ program pic1d
         Eg(i) = Eg(i) - Eg0
 	  Ef0 = Ef0 + Eg(i) * Eg(i) * dx / 2
      enddo
-     !acc end kernels
-!     !$acc update host(xp, vp, Eg)
-!     write(233)xp, vp, Eg
 
-     !acc kernels default(present)
      !$acc loop independent private(gb, gf, wb, wf, ap0, Ep, vp1, Ek0)
      do i = 1, np
         
@@ -130,11 +126,11 @@ program pic1d
         vp(i) = vp(i) + ap0 * dt / 6
         xp(i) = xp(i) + (vp0(i) + 2 * vp1) * dt /6 
      enddo
-     !acc end kernels
+     
      Eg = 0.0
      rhog = 0.0
      Eg0 = 0.0
-     !acc kernels default(present)
+
      !$acc loop independent private(gb, gf, wb, wf)
      do i = 1, np
         gb = floor(xp1(i) / dx - 0.5) + 1
@@ -158,8 +154,7 @@ program pic1d
      do i = 1, ng
         Eg(i) = Eg(i) - Eg0
      enddo
-     !acc end kernels
-     !acc kernels default(present)
+
      !$acc loop independent private(gb, gf, wb, wf, vp2, ap1, Ep)
      do i = 1, np
         gb = floor(xp1(i) / dx - 0.5) + 1
@@ -178,11 +173,11 @@ program pic1d
         vp(i) = vp(i) + ap1 * dt / 3
         xp(i) = xp(i) + vp2 * dt / 3
      enddo
-     !acc end kernels
+
      Eg = 0.0
      rhog = 0.0
      Eg0 = 0.0
-     !acc kernels default(present)
+
      !$acc loop independent private(gb, gf, wb, wf)
      do i = 1, np
         gb = floor(xp2(i) / dx - 0.5) + 1
@@ -206,8 +201,7 @@ program pic1d
      do i = 1, ng
         Eg(i) = Eg(i) - Eg0
      enddo
-     !acc end kernels
-     !acc kernels default(present)
+
      !$acc loop independent private(gb, gf, wb, wf, vp3, ap2, Ep)
      do i = 1, np
         gb = floor(xp2(i) / dx - 0.5) + 1
@@ -227,11 +221,11 @@ program pic1d
         xp(i) = xp(i) + vp3 * dt / 6
         
     enddo
-    !acc end kernels
+
     Eg = 0.0
     rhog = 0.0
     Eg0 = 0.0
-    !acc kernels default(present)
+
     !$acc loop independent private(gb, gf, wb, wf)
     do i = 1, np
         gb = floor(xp3(i) / dx - 0.5) + 1
@@ -255,8 +249,7 @@ program pic1d
      do i = 1, ng
         Eg(i) = Eg(i) - Eg0
      enddo
-     !acc end kernels
-     !acc kernels default(present)
+
      !$acc loop independent private(gb, gf, wb, wf, ap3, Ep)
      do i = 1, np
         gb = floor(xp3(i) / dx - 0.5) + 1
