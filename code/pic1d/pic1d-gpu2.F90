@@ -21,7 +21,7 @@ program pic1d
 
 ! initialize paricles
 
-  np = 1e6
+  np = 1e5
   ng = 64 
   k = 0.2
   l = 2 * pi / k
@@ -78,6 +78,8 @@ program pic1d
      rhog = 0.0
      Eg = 0.0
      Eg0 = 0.0
+     Ek0 = 0.0
+     Ef0 = 0.0
      !$acc loop independent private(gb, gf, wb, wf)
      do i = 1, np
         gb = floor(xp(i) / dx - 0.5) + 1
