@@ -4,13 +4,13 @@ function y = phi(n,x)
 
     switch n
         case -1
-            y = [0, 0, 0, 0];
+            y = [x.^1; x.^2/2; x.^3/3; x.^4/4];
         case 0
-            y = [1, x, x^2, x^3];
+            y = [x.^0; x; x.^2; x.^3];
         case 1
-            y = [0, 1, 2*x, 3*x^2];
+            y = [0*x; x.^0; 2*x; 3*x.^2];
         case 2
-            y = [0, 0, 2, 6*x];
+            y = [0*x; 0*x; 2*x.^0; 6*x];
     end
     
 end
