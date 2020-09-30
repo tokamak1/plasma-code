@@ -1,0 +1,20 @@
+zq = 1; 
+qe = 1.602176634e-19;
+zm = 1;
+me = 9.10938356e-31; mp = 1.6726219e-27;
+q = zq*qe; % particle charge
+m = zm*mp; % particle mass
+T = 1e1 * qe; % particle temperature
+vp0 = sqrt(2*T/m);
+xp = zeros(1, ntp+1);
+yp = zeros(1, ntp+1);
+zp = zeros(1, ntp+1);
+yp(1) = 0.0;
+xp(1) = 0.2;
+zp(1) = 0.2;
+vxp = zeros(1, ntp+1);
+vyp = zeros(1, ntp+1);
+vzp = zeros(1, ntp+1);
+vyp(1) = 0;
+vxp(1) = 0.0;
+vzp(1) = vp0;

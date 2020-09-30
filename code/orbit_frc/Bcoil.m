@@ -1,5 +1,6 @@
 function [bx,by,bz] = Bcoil(n,x,y,z,I0,omega,t)
-Dm = 1;
+mu0 = 4*pi*1e-7;
+Dm = mu0/2/pi;
 
 switch n
     case 1

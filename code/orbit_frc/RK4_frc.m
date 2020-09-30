@@ -1,4 +1,4 @@
-bx = 0; by = sqrt(x0^2+y0^2+z0^2) - 0.2; bz = 0;
+bx = 0; by = B0*(sqrt(x0^2+y0^2+z0^2)-0.2); bz = 0;
 h = dtp;
 for k = 1 : 8
     [bx0, by0, bz0] = Bcoil(k, x0, y0, z0, I0, omega, t);
